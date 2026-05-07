@@ -28,12 +28,19 @@ body {
   padding: 8px 4px; display: flex; flex-direction: column; gap: 6px; transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .topbar.hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+
+/* ✅ FIXED: Single Row Horizontal Scroll */
 .topbar-scroll {
-  display: flex; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity; scrollbar-width: none; -ms-overflow-style: none; padding: 4px 8px;
-  gap: 8px; width: 100%; min-height: 44px; touch-action: pan-x !important; scroll-behavior: smooth; flex-wrap: nowrap;
+  display: flex; overflow-x: auto; overflow-y: hidden;
+  -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+  scrollbar-width: none; -ms-overflow-style: none;
+  padding: 4px 8px; gap: 8px; width: 100%; min-height: 44px;
+  touch-action: pan-x !important; scroll-behavior: smooth;
+  flex-wrap: nowrap !important; /* Force items to stay in one row */
+  white-space: nowrap; align-items: center; will-change: scroll-position;
 }
 .topbar-scroll::-webkit-scrollbar { display: none; height: 0; width: 0; }
+
 .tool-group {
   display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,0.12);
   border-radius: 12px; scroll-snap-align: start; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); touch-action: manipulation;
@@ -164,25 +171,13 @@ canvas { display: block; touch-action: none; image-rendering: -webkit-optimize-c
 }
 @media (min-width: 768px) { .workspace { margin-left: 280px; } }
 
-/* ✅ FIXED: Laptop/Desktop Topbar Wrapping & Visibility */
+/* ✅ DESKTOP FIX: Start from Left */
 @media (min-width: 1024px) {
   .topbar-scroll {
-    flex-wrap: wrap !important; /* Allows items to wrap instead of overflowing off-screen */
-    justify-content: center !important; /* Centers wrapped items neatly */
-    overflow-x: hidden !important; /* Prevents horizontal scroll cut-off */
-    gap: 6px !important;
-    padding: 4px 12px !important;
-    min-height: auto !important;
+    justify-content: flex-start !important; /* Ensures it starts at the left, not center */
   }
-  .tool-group {
-    padding: 5px 9px !important;
-    flex-shrink: 0 !important;
-  }
-  .topbar-btn {
-    padding: 6px 10px !important;
-    font-size: 11px !important;
-    min-height: 34px !important;
-  }
+  .tool-group { padding: 5px 9px !important; flex-shrink: 0 !important; }
+  .topbar-btn { padding: 6px 10px !important; font-size: 11px !important; min-height: 34px !important; }
   .size-input-group { padding: 3px 6px !important; }
   .size-input-group input { width: 42px !important; height: 26px !important; }
 }
@@ -201,8 +196,8 @@ canvas { display: block; touch-action: none; image-rendering: -webkit-optimize-c
   <div class="topbar-scroll" id="topbarScroll">
     <div class="tool-group">
       <span class="tool-group-title">Add</span>
-      <button class="topbar-btn" onclick="addText()">✏️ Text</button>
-      <button class="topbar-btn" onclick="addRectangle()">▭ Rect</button>
+      <button class="topbar-btn" onclick="addText()">️ Text</button>
+      <button class="topbar-btn" onclick="addRectangle()"> Rect</button>
       <button class="topbar-btn" onclick="addCircle()">◯ Circle</button>
       <button class="topbar-btn" onclick="addTriangle()">△ Triangle</button>
       <button class="topbar-btn" onclick="triggerImageUpload()">🖼️ Image</button>
@@ -613,6 +608,9 @@ window.addEventListener('load', () => {
   window.addEventListener('orientationchange', () => setTimeout(handleResize, 300));
   topbarScroll?.addEventListener('scroll', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active')));
   updateCanvasInfo(); updateObjectInfo();
+  
+  // Ensure topbar starts at the left (Text button)
+  if (topbarScroll) topbarScroll.scrollLeft = 0;
 });
 
 document.addEventListener('touchmove', e => {
